@@ -201,3 +201,62 @@ Therefore, payment transaction and complaint report data, which were previously 
 There is no change from 2NF. Because there are no transitive dependencies and all non-key attributes depend directly on the primary key of each table.
 
 ## 7. Implement database design
+```
+1. Membuat Database Baru
+CREATE DATABASE db_pengelolaan_kos;
+USE db_pengelolaan_kos;
+
+---2. Membuat Tabel Master: tb_kamar
+CREATE TABLE tb_kamar (
+    id_kamar INT AUTO_INCREMENT,
+    no_kamar VARCHAR(10) NOT NULL,
+    tipe_kamar VARCHAR(50) NOT NULL,
+    harga_bulanan INT NOT NULL,
+    status_kamar ENUM('Tersedia', 'Terisi') DEFAULT 'Tersedia',
+    PRIMARY KEY (id_kamar)
+) ENGINE=InnoDB;
+
+---3. Membuat Tabel Master: tb_penghuni
+--- Catatan: id_kamar menggunakan UNIQUE karena relasi 1:1 
+--- (satu kamar hanya untuk satu penghuni aktif)
+CREATE TABLE tb_penghuni (
+    id_penghuni INT AUTO_INCREMENT,
+    id_kamar INT UNIQUE,
+    nama_penghuni VARCHAR(100) NOT NULL,
+    no_hp VARCHAR(15) NOT NULL,
+    email VARCHAR(100),
+    alamat_asal TEXT,
+    PRIMARY KEY (id_penghuni),
+    FOREIGN KEY (id_kamar) REFERENCES tb_kamar(id_kamar)
+        ON UPDATE CASCADE 
+        ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+---4. Membuat Tabel Transaksi: tb_pembayaran
+CREATE TABLE tb_pembayaran (
+    id_pembayaran INT AUTO_INCREMENT,
+    id_penghuni INT NOT NULL,
+    tgl_pembayaran DATE NOT NULL,
+    jumlah_bayar INT NOT NULL,
+    bulan_sewa VARCHAR(30) NOT NULL,
+    status_pembayaran ENUM('Pending', 'Lunas') DEFAULT 'Pending',
+    PRIMARY KEY (id_pembayaran),
+    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id_penghuni)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+---5. Membuat Tabel Transaksi: tb_komplain
+CREATE TABLE tb_komplain (
+    id_komplain INT AUTO_INCREMENT,
+    id_penghuni INT NOT NULL,
+    tgl_komplain DATE NOT NULL,
+    deskripsi_komplain TEXT NOT NULL,
+    status_komplain ENUM('Proses', 'Selesai') DEFAULT 'Proses',
+    PRIMARY KEY (id_komplain),
+    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id_penghuni)
+        ON UPDATE CASCADE 
+        ON DELETE CASCADE
+) ENGINE=InnoDB;
+```
+## 8. DML Process: Filling initial data/Insert, Update, and Delete
