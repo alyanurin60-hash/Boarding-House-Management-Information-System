@@ -325,4 +325,4 @@ WHERE room_id = 3;
 
 ## 9. Create an application using Python and PHP for CRUD on two selected master tables.
 ### A. Python (CLI Application)
-The Python code is located in python file ()
+The Python code is located in python file (https://github.com/alyanurin60-hash/Boarding-House-Management-Information-System/blob/main/python)
