@@ -28,235 +28,300 @@ Boarding House Management Information System
 ## 4. Entity Relationship Diagram design, entities and relationships between entities
 ```mermaid
 erDiagram
-KAMAR {
-int id_kamar
-varchar no_kamar "unique"
-varchar tipe_kamar
-int harga_bulanan
-varchar status_kamar "Tersedia atau Terisi"
+ROOM {
+int room_id
+varchar room_number "unique"
+varchar room_type
+int monthly_price
+varchar room_status "Available or Occupied"
 }
 
-PENGHUNI {
-int id_penghuni PK 
-int id_kamar FK
-varchar nama
-varchar no_hp "unique"
+RESIDENT {
+int resident_id PK 
+int room_id FK
+varchar name
+varchar phone_number "unique"
 varchar email "unique"
-varchar alamat_asal
+varchar origin_address
 }
 
-PEMBAYARAN {
-int id_pembayaran PK
-int id_penghuni FK
-date tgl_pembayaran
-int jumlah_pembayaran
-date bulan_sewa
-varchar status_pembayaran "Lunas atau Pending"
+PAYMENT {
+int payment_id PK
+int resident_id FK
+date payment_date
+int payment_amount
+date month_of_rent
+varchar payment_status "Paid off or Pending"
 }
 
-KOMPLAIN {
-int id_komplain PK
-int id_penghuni FK
-date tgl_komplain
-varchar deskripsi
-varchar status_komplain "Diproses atau Selesai"
+COMPLAINT {
+int complaint_id PK
+int resident_id FK
+date complaint_date
+varchar description
+varchar complaint_status "Processed or Completed"
 }
 
-KAMAR ||--o| PENGHUNI : "menempati"
-PENGHUNI ||--o{ PEMBAYARAN : "membayar"
-PENGHUNI ||--o| KOMPLAIN : "mengajukan"
+ROOM ||--o| RESIDENT : "occupy"
+RESIDENT ||--o{ PAYMENT : "pay"
+RESIDENT ||--o| COMPLAINT : "submit"
 ```
 
 ## 5. Cardinality in each relationship between entities
-### A. Entity: KAMAR
-- id_kamar (INT, PK) — 1:1 relationship to the Occupant entity
-- no_kamar (VARCHAR)
-- tipe_kamar (VARCHAR) — Examples: En-suite Bathroom, AC, etc.
-- harga_bulanan (INT)
-- status_kamar (VARCHAR) — Example: Available / Occupied
-### B. Entity: PENGHUNI
-- id_penghuni (INT, PK) — 1:N relation to Payments & Complaints
-- id_kamar (INT, FK) — Guest key to record which room is occupied
-- nama (VARCHAR)
-- no_hp (VARCHAR)
+### A. Entity: ROOM
+- room_id (INT, PK) — 1:1 relationship to the Occupant entity
+- room_number (VARCHAR)
+- room_type (VARCHAR) — Examples: En-suite Bathroom, AC, etc.
+- monthly_price (INT)
+- room_status (VARCHAR) — Example: Available / Occupied
+### B. Entity: RESIDENT
+- resident_id (INT, PK) — 1:N relation to Payments & Complaints
+- room_id (INT, FK) — Guest key to record which room is occupied
+- name (VARCHAR)
+- phone_number (VARCHAR)
 - email (VARCHAR)
-- alamat_asal (TEXT)
-### C. Entity: PEMBAYARAN
-- id_pembayaran (INT, PK)
-- id_penghuni (INT, FK) — Connects who the paying occupant is
-- tgl_pembayaran (DATE)
-- jumlah_bayar (INT)
-- bulan_sewa (VARCHAR) — Example: "January 2026"
-- status_pembayaran (VARCHAR) — Example: Paid / Pending
-### 4. Entity: KOMPLAIN
-- id_komplain (INT, PK)
-- id_penghuni (INT, FK) — Connects who the complaining occupant is
-- tgl_komplain (DATE)
-- deskripsi (TEXT)
-- complaint status (VARCHAR) — Example: Process / Completed
+- origin_address (TEXT)
+### C. Entity: PAYMENT
+- payment_id (INT, PK)
+- resident_id (INT, FK) — Connects who the paying occupant is
+- payment_date (DATE)
+- payment_amount (INT)
+- month_of_rent (VARCHAR) — Example: "January 2026"
+- payment_status (VARCHAR) — Example: Paid / Pending
+### 4. Entity: COMPLAINT
+- complaint_id (INT, PK)
+- resident_id (INT, FK) — Connects who the complaining occupant is
+- complaint_date (DATE)
+- description (TEXT)
+- complaint_status (VARCHAR) — Example: Process / Completed
 
 ## 6. Database normalization process
 ### A. Unnormalized Form - UNF
 At this stage, all data is combined into one large, unorganized table. Resident, room, payment, and complaint data are recorded repeatedly in the same row.
-| Nama Kolom            | Jenis Kunci      | Keterangan                        |
-| :-------------------- | :--------------- | :-------------------------------- |
-| **id_penghuni**       | Primary Key (PK) | ID unik penghuni kos              |
-| **nama**              | -                | Nama lengkap penghuni             |
-| **no_hp**             | -                | Nomor telepon penghuni            |
-| **email**             | -                | Alamat email penghuni             |
-| **alamat_asal**       | -                | Alamat asal penghuni              |
-| **id_kamar**          | -                | ID kamar yang ditempati           |
-| **no_kamar**          | -                | Nomor kamar                       |
-| **tipe_kamar**        | -                | Jenis atau fasilitas kamar        |
-| **harga_bulanan**     | -                | Harga sewa kamar per bulan        |
-| **status_kamar**      | -                | Status kamar (Tersedia/Terisi)    |
-| **id_pembayaran**     | -                | ID transaksi pembayaran           |
-| **tgl_pembayaran**    | -                | Tanggal pembayaran dilakukan      |
-| **jumlah_pembayaran** | -                | Nominal pembayaran                |
-| **bulan_sewa**        | -                | Bulan yang dibayarkan             |
-| **status_pembayaran** | -                | Status pembayaran (Lunas/Pending) |
-| **id_komplain**       | -                | ID komplain penghuni              |
-| **tgl_komplain**      | -                | Tanggal komplain dibuat           |
-| **deskripsi**         | -                | Isi atau deskripsi komplain       |
-| **status_komplain**   | -                | Status penanganan komplain        |
+| Column Name           | Key Types        | Information                             |
+| :-------------------- | :--------------- | :--------------------------------       |
+| **resident_id**       | Primary Key (PK) | Unique ID of boarding house resident    |
+| **name**              | -                | Full name of occupant                   |
+| **phone_number**      | -                | Resident's phone number                 |
+| **email**             | -                | Resident's email address                |
+| **origin_address**    | -                | Resident's original address             |
+| **room_id**           | -                | ID of the room occupied                 |
+| **room_number**       | -                | Room number                             |
+| **room_type**         | -                | Room type or facilities                 |
+| **monthly_price**     | -                | Room rental price per month             |
+| **room_status**       | -                | Room status (Available/Occupied)        |
+| **payment_id**        | -                | Payment transaction ID                  |
+| **payment_date**      | -                | Date payment was made                   |
+| **payment_amount**    | -                | Payment amount                          |
+| **month_of_rent**     | -                | Month paid                              |
+| **payment_status**    | -                | Payment status (Paid/Pending)           |
+| **complaint_id**      | -                | Resident Complaint ID                   |
+| **complaint_date**    | -                | Date the complaint was made             |
+| **description**       | -                | Content or description of the complaint |
+| **complaint_status**  | -                | Complaint handling status               |
 
 ### B. First Normal Form (1NF)
 The requirement for 1NF is that no attributes may have multiple values ​​or repeating groups within a single row of data. Because the UNF table structure above is broken down into atomic (single-valued) columns, the 1NF table structure is the same as the UNF table, ensuring each row of data is unique.
 
 ### C. Second Normal Form (2NF)
 The requirements for 2NF are that 1NF must be met and there must be no partial dependencies. Non-key attributes must be fully dependent on the primary key. At this stage, we must split the large table into master entities to avoid unnecessary data duplication.
-- **KAMAR**
-| Nama Kolom    | Jenis Kunci |
-  | :------------ | :---------- |
-  | id_kamar      | PK          |
-  | no_kamar      | -           |
-  | tipe_kamar    | -           |
-  | harga_bulanan | -           |
-  | status_kamar  | -           |
-- **PENGHUNI**
-  | Nama Kolom  | Jenis Kunci |
-  | :---------- | :---------- |
-  | id_penghuni | PK          |
-  | id_kamar    | FK          |
-  | nama        | -           |
-  | no_hp       | -           |
-  | email       | -           |
-  | alamat_asal | -           |
-- **PEMBAYARAN**
-| Nama Kolom        | Jenis Kunci |
+- **ROOM**
+  | Column Name    | Key Types   |
+  | :------------  | :---------- |
+  | room_id        | PK          |
+  | room_number    | -           |
+  | room_type      | -           |
+  | monthly_price  | -           |
+  | room_status    | -           |
+- **RESIDENT** (same as 2NF)
+  | Column Name    | Key Types   |
+  | :----------    | :---------- |
+  | resident_id    | PK          |
+  | room_id        | FK          |
+  | name           | -           |
+  | phone_number   | -           |
+  | email          | -           |
+  | origin_address | -           |
+- **PAYMENT** 
+  | Column Name       | Key Types   |
   | :---------------- | :---------- |
-  | id_pembayaran     | PK          |
-  | id_penghuni       | FK          |
-  | tgl_pembayaran    | -           |
-  | jumlah_pembayaran | -           |
-  | bulan_sewa        | -           |
-  | status_pembayaran | -           |
-- **KOMPLAIN**
-| Nama Kolom      | Jenis Kunci |
-  | :-------------- | :---------- |
-  | id_komplain     | PK          |
-  | id_penghuni     | FK          |
-  | tgl_komplain    | -           |
-  | deskripsi       | -           |
-  | status_komplain | -           |
+  | payment_id        | PK          |
+  | resident_id       | FK          |
+  | payment_date      | -           |
+  | payment_amount    | -           |
+  | month_of_rent     | -           |
+  | payment_status    | -           |
+- **COMPLAINT**
+  | Column Name      | Key Types   |
+  | :--------------  | :---------- |
+  | complaint_id     | PK          |
+  | resident_id      | FK          |
+  | complaint_date   | -           |
+  | description      | -           |
+  | complaint_status | -           |
 
 ### D. Third Normal Form (3NF)
 The 3NF requirement is that 2NF must be met and there must be no transitive dependencies (non-key attributes depending on other non-key attributes).
 
 Therefore, payment transaction and complaint report data, which were previously transitively attached, must be separated into separate transactional tables that stand alone but remain connected through the resident's foreign key.
-- **KAMAR** (same as 2NF)
-| Nama Kolom    | Jenis Kunci |
-  | :------------ | :---------- |
-  | id_kamar      | PK          |
-  | no_kamar      | -           |
-  | tipe_kamar    | -           |
-  | harga_bulanan | -           |
-  | status_kamar  | -           |
-- **PENGHUNI** (same as 2NF)
-  | Nama Kolom  | Jenis Kunci |
-  | :---------- | :---------- |
-  | id_penghuni | PK          |
-  | id_kamar    | FK          |
-  | nama        | -           |
-  | no_hp       | -           |
-  | email       | -           |
-  | alamat_asal | -           |
-- **PEMBAYARAN** (same as 2NF)
-| Nama Kolom        | Jenis Kunci |
+- **ROOM** (same as 2NF)
+  | Column Name    | Key Types   |
+  | :------------  | :---------- |
+  | room_id        | PK          |
+  | room_number    | -           |
+  | room_type      | -           |
+  | monthly_price  | -           |
+  | room_status    | -           |
+- **RESIDENT** (same as 2NF)
+  | Column Name    | Key Types   |
+  | :----------    | :---------- |
+  | resident_id    | PK          |
+  | room_id        | FK          |
+  | name           | -           |
+  | phone_number   | -           |
+  | email          | -           |
+  | origin_address | -           |
+- **PAYMENT** (same as 2NF)
+  | Column Name       | Key Types   |
   | :---------------- | :---------- |
-  | id_pembayaran     | PK          |
-  | id_penghuni       | FK          |
-  | tgl_pembayaran    | -           |
-  | jumlah_pembayaran | -           |
-  | bulan_sewa        | -           |
-  | status_pembayaran | -           |
-- **KOMPLAIN** (same as 2NF)
-| Nama Kolom      | Jenis Kunci |
-  | :-------------- | :---------- |
-  | id_komplain     | PK          |
-  | id_penghuni     | FK          |
-  | tgl_komplain    | -           |
-  | deskripsi       | -           |
-  | status_komplain | -           |
+  | payment_id        | PK          |
+  | resident_id       | FK          |
+  | payment_date      | -           |
+  | payment_amount    | -           |
+  | month_of_rent     | -           |
+  | payment_status    | -           |
+- **COMPLAINT** (same as 2NF)
+  | Column Name      | Key Types   |
+  | :--------------  | :---------- |
+  | complaint_id     | PK          |
+  | resident_id      | FK          |
+  | complaint_date   | -           |
+  | description      | -           |
+  | complaint_status | -           |
 There is no change from 2NF. Because there are no transitive dependencies and all non-key attributes depend directly on the primary key of each table.
 
 ## 7. Implement database design
 ```
-1. Membuat Database Baru
-CREATE DATABASE db_pengelolaan_kos;
-USE db_pengelolaan_kos;
+-- 1. Create and Initialize Database
+CREATE DATABASE db_boarding_house;
+USE db_boarding_house;
 
----2. Membuat Tabel Master: tb_kamar
-CREATE TABLE tb_kamar (
-    id_kamar INT AUTO_INCREMENT,
-    no_kamar VARCHAR(10) NOT NULL,
-    tipe_kamar VARCHAR(50) NOT NULL,
-    harga_bulanan INT NOT NULL,
-    status_kamar ENUM('Tersedia', 'Terisi') DEFAULT 'Tersedia',
-    PRIMARY KEY (id_kamar)
+-- 2. Create Master Table: tb_room
+CREATE TABLE tb_room (
+room_id INT AUTO_INCREMENT,
+room_number VARCHAR(10) NOT NULL,
+room_type VARCHAR(50) NOT NULL,
+monthly_price INT NOT NULL,
+room_status ENUM('Available', 'Occupied') DEFAULT 'Available',
+PRIMARY KEY (room_id)
 ) ENGINE=InnoDB;
 
----3. Membuat Tabel Master: tb_penghuni
---- Catatan: id_kamar menggunakan UNIQUE karena relasi 1:1 
---- (satu kamar hanya untuk satu penghuni aktif)
-CREATE TABLE tb_penghuni (
-    id_penghuni INT AUTO_INCREMENT,
-    id_kamar INT UNIQUE,
-    nama_penghuni VARCHAR(100) NOT NULL,
-    no_hp VARCHAR(15) NOT NULL,
-    email VARCHAR(100),
-    alamat_asal TEXT,
-    PRIMARY KEY (id_penghuni),
-    FOREIGN KEY (id_kamar) REFERENCES tb_kamar(id_kamar)
-        ON UPDATE CASCADE 
-        ON DELETE SET NULL
+-- 3. Create Master Table: tb_resident
+-- Note: room_id is set to UNIQUE to guarantee a 1:1 relationship
+-- (one active resident per room layout)
+CREATE TABLE tb_resident (
+resident_id INT AUTO_INCREMENT,
+room_id INT UNIQUE,
+resident_name VARCHAR(100) NOT NULL,
+phone_number VARCHAR(15) NOT NULL,
+email VARCHAR(100),
+origin_address TEXT,
+PRIMARY KEY (resident_id),
+FOREIGN KEY (room_id) REFERENCES tb_room(room_id)
+ON UPDATE CASCADE
+ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
----4. Membuat Tabel Transaksi: tb_pembayaran
-CREATE TABLE tb_pembayaran (
-    id_pembayaran INT AUTO_INCREMENT,
-    id_penghuni INT NOT NULL,
-    tgl_pembayaran DATE NOT NULL,
-    jumlah_bayar INT NOT NULL,
-    bulan_sewa VARCHAR(30) NOT NULL,
-    status_pembayaran ENUM('Pending', 'Lunas') DEFAULT 'Pending',
-    PRIMARY KEY (id_pembayaran),
-    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id_penghuni)
-        ON UPDATE CASCADE 
-        ON DELETE CASCADE
+-- 4. Create Transaction Table: tb_payment
+CREATE TABLE tb_payment (
+payment_id INT AUTO_INCREMENT,
+resident_id INT NOT NULL,
+payment_date DATE NOT NULL,
+payment_amount INT NOT NULL,
+month_of_rent VARCHAR(30) NOT NULL,
+payment_status ENUM('Pending', 'Paid') DEFAULT 'Pending',
+PRIMARY KEY (payment_id),
+FOREIGN KEY (resident_id) REFERENCES tb_resident(resident_id)
+ON UPDATE CASCADE
+ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
----5. Membuat Tabel Transaksi: tb_komplain
-CREATE TABLE tb_komplain (
-    id_komplain INT AUTO_INCREMENT,
-    id_penghuni INT NOT NULL,
-    tgl_komplain DATE NOT NULL,
-    deskripsi_komplain TEXT NOT NULL,
-    status_komplain ENUM('Proses', 'Selesai') DEFAULT 'Proses',
-    PRIMARY KEY (id_komplain),
-    FOREIGN KEY (id_penghuni) REFERENCES tb_penghuni(id_penghuni)
-        ON UPDATE CASCADE 
-        ON DELETE CASCADE
+-- 5. Create Management Table: tb_complaint
+CREATE TABLE tb_complaint (
+complaint_id INT AUTO_INCREMENT,
+resident_id INT NOT NULL,
+complaint_date DATE NOT NULL,
+complaint_desc TEXT NOT NULL,
+complaint_status ENUM('In-Progress', 'Completed') DEFAULT 'In-Progress',
+PRIMARY KEY (complaint_id),
+FOREIGN KEY (resident_id) REFERENCES tb_resident(resident_id)
+ON UPDATE CASCADE
+ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
 ```
+
 ## 8. DML Process: Filling initial data/Insert, Update, and Delete
+### A. Inserting Dummy Data (INSERT)
+We have to insert the data sequentially: starting from the master table without dependencies (tb_room), then the master data that depends on the room (tb_resident), followed by the transaction tables (tb_payment and tb_complaint).
+```
+-- 1. Insert records into tb_room
+INSERT INTO tb_room (room_number, room_type, monthly_price, room_status) VALUES
+('A-01', 'Exclussive (AC + Private Bathroom)', 1500000, 'Occupied'),
+('A-02', 'Exclussive (AC + Private Bathroom)', 1500000, 'Available'),
+('B-01', 'Standard (Fan + Shared Bathroom)', 800000, 'Occupied'),
+('B-02', 'Standard (Fan + Shared Bathroom)', 800000, 'Available');
+
+-- 2. Insert records into tb_resident (Assigning them to occupied rooms)
+INSERT INTO tb_resident (room_id, resident_name, phone_number, email, origin_address) VALUES
+(1, 'Alya Nurin', '081234567890', 'alya.nurin@email.com', 'Pasuruan, East Java'),
+(3, 'Farhan Wijaya', '085712345678', 'farhan.w@email.com', 'Surabaya, East Java');
+
+-- 3. Insert records into tb_payment
+INSERT INTO tb_payment (resident_id, payment_date, payment_amount, month_of_rent, payment_status) VALUES
+(1, '2026-06-01', 1500000, 'June 2026', 'Paid'),
+(2, '2026-06-02', 800000, 'June 2026', 'Pending');
+
+-- 4. Insert records into tb_complaint
+INSERT INTO tb_complaint (resident_id, complaint_date, complaint_desc, complaint_status) VALUES
+(1, '2026-06-05', 'Air conditioner (AC) is leaking water.', 'In-Progress'),
+(2, '2026-06-06', 'Bathroom light bulb is broken.', 'In-Progress');
+```
+### B. Updating Records (UPDATE)
+The following are common update query scenarios that occur in boarding house management systems, such as changing complaint status or updating payment status.
+```
+-- Scenario 1: Update complaint status to 'Completed' once the facility is fixed
+UPDATE tb_complaint 
+SET complaint_status = 'Completed' 
+WHERE complaint_id = 2;
+
+-- Scenario 2: Update payment status to 'Paid' after verifying a payment transaction
+UPDATE tb_payment 
+SET payment_status = 'Paid' 
+WHERE payment_id = 2;
+
+-- Scenario 3: Update a resident's contact details
+UPDATE tb_resident 
+SET phone_number = '081299998888' 
+WHERE resident_id = 1;
+```
+### C. Deleting Records (DELETE)
+Following is the command to delete certain data records from a table.
+```
+-- Scenario 1: Delete a specific complaint record
+DELETE FROM tb_complaint 
+WHERE complaint_id = 1;
+
+-- Scenario 2: Delete a resident who is checking out from the boarding house
+-- (Note: Because of ON DELETE SET NULL on tb_resident, the corresponding room status won't break)
+DELETE FROM tb_resident 
+WHERE resident_id = 2;
+
+-- Quick fix after a resident leaves: Reset the room status back to 'Available'
+UPDATE tb_room 
+SET room_status = 'Available' 
+WHERE room_id = 3;
+```
+
+## 9. Create an application using Python and PHP for CRUD on two selected master tables.
+### A. Python (CLI Application)
