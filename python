@@ -1,0 +1,133 @@
+import mysql.connector
+from mysql.connector import Error
+
+def create_connection():
+    try:
+        connection = mysql.connector.connect(
+            host='localhost',
+            database='db_boarding_house',
+            user='root',       # Sesuaikan dengan username MySQL kamu
+            password=''        # Sesuaikan dengan password MySQL kamu
+        )
+        return connection
+    except Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        return None
+
+# ==========================================
+# CRUD MENU 1: Room Management (tb_room)
+# ==========================================
+def manage_rooms(conn):
+    cursor = conn.cursor()
+    while True:
+        print("\n=== ROOM MANAGEMENT ===")
+        print("1. Add New Room")
+        print("2. View All Rooms")
+        print("3. Update Room Price/Status")
+        print("4. Delete Room")
+        print("5. Back to Main Menu")
+        choice = input("Choose menu (1-5): ")
+
+        if choice == '1':
+            num = input("Room Number (e.g., C-01): ")
+            rtype = input("Room Type: ")
+            price = int(input("Monthly Price: "))
+            cursor.execute("INSERT INTO tb_room (room_number, room_type, monthly_price) VALUES (%s, %s, %s)", (num, rtype, price))
+            conn.commit()
+            print("Room added successfully!")
+            
+        elif choice == '2':
+            cursor.execute("SELECT * FROM tb_room")
+            for row in cursor.fetchall():
+                print(f"ID: {row[0]} | Number: {row[1]} | Type: {row[2]} | Price: {row[3]} | Status: {row[4]}")
+                
+        elif choice == '3':
+            rid = int(input("Enter Room ID to update: "))
+            new_price = int(input("New Monthly Price: "))
+            new_status = input("New Status (Available/Occupied): ")
+            cursor.execute("UPDATE tb_room SET monthly_price = %s, room_status = %s WHERE room_id = %s", (new_price, new_status, rid))
+            conn.commit()
+            print("Room updated successfully!")
+            
+        elif choice == '4':
+            rid = int(input("Enter Room ID to delete: "))
+            cursor.execute("DELETE FROM tb_room WHERE room_id = %s", (rid,))
+            conn.commit()
+            print("Room deleted successfully!")
+            
+        elif choice == '5':
+            break
+
+# ==========================================
+# CRUD MENU 2: Resident Management (tb_resident)
+# ==========================================
+def manage_residents(conn):
+    cursor = conn.cursor()
+    while True:
+        print("\n=== RESIDENT MANAGEMENT ===")
+        print("1. Add New Resident")
+        print("2. View All Residents")
+        print("3. Update Resident Contact")
+        print("4. Delete Resident")
+        print("5. Back to Main Menu")
+        choice = input("Choose menu (1-5): ")
+
+        if choice == '1':
+            name = input("Resident Name: ")
+            phone = input("Phone Number: ")
+            email = input("Email: ")
+            address = input("Origin Address: ")
+            room_id = input("Assigned Room ID (Can be empty/NULL): ")
+            room_id = int(room_id) if room_id else None
+            
+            cursor.execute("INSERT INTO tb_resident (room_id, resident_name, phone_number, email, origin_address) VALUES (%s, %s, %s, %s, %s)", (room_id, name, phone, email, address))
+            if room_id:
+                cursor.execute("UPDATE tb_room SET room_status = 'Occupied' WHERE room_id = %s", (room_id,))
+            conn.commit()
+            print("Resident added successfully!")
+            
+        elif choice == '2':
+            cursor.execute("SELECT * FROM tb_resident")
+            for row in cursor.fetchall():
+                print(f"ID: {row[0]} | Room ID: {row[1]} | Name: {row[2]} | Phone: {row[3]} | Email: {row[4]} | Address: {row[5]}")
+                
+        elif choice == '3':
+            res_id = int(input("Enter Resident ID to update: "))
+            new_phone = input("New Phone Number: ")
+            new_email = input("New Email: ")
+            cursor.execute("UPDATE tb_resident SET phone_number = %s, email = %s WHERE resident_id = %s", (new_phone, new_email, res_id))
+            conn.commit()
+            print("Resident data updated successfully!")
+            
+        elif choice == '4':
+            res_id = int(input("Enter Resident ID to delete: "))
+            cursor.execute("DELETE FROM tb_resident WHERE resident_id = %s", (res_id,))
+            conn.commit()
+            print("Resident removed successfully!")
+            
+        elif choice == '5':
+            break
+
+# ==========================================
+# MAIN EXECUTION
+# ==========================================
+if __name__ == '__main__':
+    conn = create_connection()
+    if conn:
+        while True:
+            print("\n=====================================")
+            print("BOARDING HOUSE INFORMATION SYSTEM")
+            print("=====================================")
+            print("1. Manage Rooms Master Data")
+            print("2. Manage Residents Master Data")
+            print("3. Exit Application")
+            main_choice = input("Select Menu (1-3): ")
+            
+            if main_choice == '1':
+                manage_rooms(conn)
+            elif main_choice == '2':
+                manage_residents(conn)
+            elif main_choice == '3':
+                print("Thank you for using the system!")
+                conn.close()
+                break
